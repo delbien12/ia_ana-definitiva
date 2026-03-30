@@ -3,6 +3,9 @@ from pydantic import BaseModel
 from brain import process
 
 app = FastAPI()
+@app.get("/")
+def home():
+    return {"mensaje": "A.N.A IA está funcionando 🚀"}
 
 class Chat(BaseModel):
     user: str
