@@ -12,7 +12,7 @@ def detectar_tipo(texto):
     if any(x in texto for x in ["codigo", "programa", "c++", "python", "java"]):
         return "codigo"
      #Medico
-    if detect_medical(x in texto for x in["dolor",
+    if any(x in texto for x in["dolor",
         "fiebre",
         "tos",
         "gripa",
