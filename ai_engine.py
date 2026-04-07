@@ -10,6 +10,8 @@ def generate(messages, tipo="normal"):
         max_tokens = 60
     elif tipo == "codigo":
         max_tokens = 300
+     elif tipo == "medico":
+        max_tokens = 100
     else:
         max_tokens = MAX_TOKENS
 
