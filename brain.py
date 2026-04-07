@@ -1,6 +1,6 @@
 from math_engine import solve
 from ai_engine import generate
-
+from medical_engine import detect_medical, medical_response
 def detectar_tipo(texto):
     texto = texto.lower()
 
@@ -11,7 +11,10 @@ def detectar_tipo(texto):
     # programación
     if any(x in texto for x in ["codigo", "programa", "c++", "python", "java"]):
         return "codigo"
-
+     #Medico
+    if detect_medical(message):
+        return medical_response(message)
+        
     return "normal"
 
 
