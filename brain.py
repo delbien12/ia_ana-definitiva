@@ -34,7 +34,7 @@ def detectar_tipo(texto):
         "diarrea",
         "covid",
         "temperatura"]):
-        return medical_response(message)
+        return "medico"
         
     return "normal"
 
