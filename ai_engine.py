@@ -11,10 +11,11 @@ def generate(messages, tipo="normal"):
     elif tipo == "codigo":
         max_tokens = 300
      elif tipo == "medico":
-        max_tokens = 100
+        max_tokens = 60
+         elif tipo == "mediación":
+        max_tokens = 60
     else:
         max_tokens = MAX_TOKENS
-
     try:
         completion = client.chat.completions.create(
             messages=messages,
