@@ -2,3 +2,5 @@ fastapi
 uvicorn
 sympy
 groq
+python-dotenv
+requests
