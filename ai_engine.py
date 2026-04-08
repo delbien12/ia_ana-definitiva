@@ -1,44 +1,45 @@
 from groq import Groq
-from config import GROQ_API_KEY, MODEL, TEMPERATURE, MAX_TOKENS
+from config import GROQ_API_KEY, MODEL, TEMPERATURE
 
 client = Groq(api_key=GROQ_API_KEY)
 
-# memoria por usuario
 memory = {}
 
-# 🔒 LIMITE para evitar que truene
-MAX_HISTORY = 6
+MAX_HISTORY = 8  # 🔥 equilibrio perfecto
 
 def generate(user, prompt):
     try:
         # crear memoria si no existe
         if user not in memory:
-            memory[user] = [
-                {
-                    "role": "system",
-                    "content": """Eres A.N.A, una IA inteligente, clara y conversacional.
+            memory[user] = []
 
-Respondes de forma natural y útil.
-Puedes ayudar en matemáticas, organización, consejos y apoyo emocional.
+        # prompt base (NO se guarda en memoria)
+        system_prompt = {
+            "role": "system",
+            "content": """Eres A.N.A, una IA conversacional.
 
-No des respuestas extremadamente largas."""
-                }
-            ]
+Hablas de forma natural, como una persona.
+Recuerdas lo que el usuario dijo antes.
+Respondes claro, útil y sin ser excesivamente largo."""
+        }
 
-        # agregar mensaje usuario
+        # guardar mensaje usuario
         memory[user].append({
             "role": "user",
             "content": prompt
         })
 
-        # 🔥 recortar historial (evita errores)
+        # 🔥 limitar historial pero NO demasiado
         memory[user] = memory[user][-MAX_HISTORY:]
 
+        # construir conversación
+        messages = [system_prompt] + memory[user]
+
         completion = client.chat.completions.create(
-            model=MODEL,
-            messages=memory[user],
-            temperature=TEMPERATURE,
-            max_tokens=MAX_TOKENS
+            model="llama3-8b-8192",
+            messages=messages,
+            temperature=0.8,
+            max_tokens=400
         )
 
         respuesta = completion.choices[0].message.content
@@ -53,4 +54,4 @@ No des respuestas extremadamente largas."""
 
     except Exception as e:
         print("❌ Error Groq:", e)
-        return "⚠️ Error con la IA en la nube."
+        return "🤖 Perdí el hilo… ¿puedes repetirlo?"
