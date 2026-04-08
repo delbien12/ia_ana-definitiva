@@ -41,7 +41,7 @@ def medical_response(text):
     if "fiebre" in text:
         return "🤒 La fiebre puede indicar infección. Si supera 38°C consulta un médico."
 
-    elif "dolor de cabeza" in text:
+    elif "cabeza" in text:
         return "🤕 El dolor de cabeza puede deberse a estrés, deshidratación o cansancio."
 
     elif "tos" in text:
