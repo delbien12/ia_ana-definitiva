@@ -16,7 +16,7 @@ def detectar_tipo(texto):
     if any(x in texto for x in["dolor", "fiebre", "tos","gripa", "gripe", "enfermo", "síntomas","sintomas","medicina","medico","doctor","cabeza","estómago","estomago","náusea","nausea", "mareo","vomito","vomitar","diarrea","covid","temperatura"]):
         return "medico"
     if any(x in texto for x in["idiota","estúpido","estupido","tonto","imbécil","imbecil","pendejo","pendeja","mierda","puta","puto","vete a la","callate","cállate","no sirves","eres basura"]):
-    return ""
+    return "mediación"
     return "normal"
 
 def process(user, message):
