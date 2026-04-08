@@ -17,17 +17,16 @@ def detectar_tipo(texto):
         return "codigo"
         
     return "normal"
-    
-    # 🩺 MÉDICO
+            
+def process(user, message):
+
+    tipo = detectar_tipo(message)
+# 🩺 MÉDICO
     if tipo == "medico":
         resultado = medical_engine.medical_response(message)
         if resultado:
             return resultado
             
-def process(user, message):
-
-    tipo = detectar_tipo(message)
-
     # 🧮 MATEMÁTICAS
     if tipo == "matematicas":
         resultado = solve(message)
