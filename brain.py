@@ -1,8 +1,13 @@
 from math_engine import solve
 from ai_engine import generate
+import motor_medico
+
 def detectar_tipo(texto):
     texto = texto.lower()
-
+    # Medicina
+    if motor_medico.detectar_medico(texto):
+        return "medico"
+        
     # matemáticas
     if any(x in texto for x in ["+", "-", "*", "/", "raiz", "cuadrado", "ecuacion"]):
         return "matematicas"
@@ -12,7 +17,13 @@ def detectar_tipo(texto):
         return "codigo"
         
     return "normal"
-
+    
+    # 🩺 MÉDICO
+    if tipo == "medico":
+        resultado = motor_medico.respuesta_medica(message)
+        if resultado:
+            return resultado
+            
 def process(user, message):
 
     tipo = detectar_tipo(message)
