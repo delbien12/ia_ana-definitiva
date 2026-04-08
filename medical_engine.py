@@ -25,7 +25,10 @@ def detect_medical(text):
         "vomitar",
         "diarrea",
         "covid",
-        "temperatura"
+        "temperatura","dolor", "fiebre", "tos", "gripa", "enfermo", "síntomas", 
+    "medicina", "médico", "doctor", "cabeza", "estomago",
+    "curar", "remedio", "tratamiento", "aliviar","tomar", "pastilla" # <-- Agrega estas
+        
     ]
 
     for palabra in palabras_medicas:
@@ -53,4 +56,14 @@ def medical_response(text):
     elif "mareo" in text:
         return "😵 El mareo puede ser por presión baja o deshidratación."
 
+    elif "cabeza" in text and ("curar" in text or "remedio" in text or "tratamiento" in text):
+        return "🤕 Para el dolor de cabeza, se recomienda descansar en un lugar oscuro y hidratarse. Si persiste, consulta a un médico."
+
+    elif "dolor de cabeza" in text:
+        return "🤕 El dolor de cabeza puede deberse a estrés, deshidratación o falta de sueño."
+
+    elif "fiebre" in text:
+        return "🤒 La fiebre es una señal de que tu cuerpo lucha contra algo..."
+
+    return "No estoy segura de cómo ayudarte con ese malestar específico, lo mejor es consultar a un profesional."
     return "⚕️ Podrías dar más detalles de los síntomas para ayudarte mejor."
