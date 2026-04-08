@@ -3,22 +3,22 @@ from config import GROQ_API_KEY, MODEL, TEMPERATURE, MAX_TOKENS
 
 client = Groq(api_key=GROQ_API_KEY)
 
-def generate(messages, tipo="normal"):
-    
-    # 🎯 CONTROL DINÁMICO
-    if tipo == "matematicas":
-        max_tokens = 60
-    elif tipo == "codigo":
-        max_tokens = 300
-    else:
-        max_tokens = MAX_TOKENS
-
+def generate(prompt):
     try:
         completion = client.chat.completions.create(
-            messages=messages,
             model=MODEL,
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Eres A.N.A, una IA inteligente, útil, clara, amable, experta en matemáticas, salud básica, organización y apoyo emocional."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
             temperature=TEMPERATURE,
-            max_tokens=max_tokens
+            max_tokens=MAX_TOKENS
         )
 
         return completion.choices[0].message.content
