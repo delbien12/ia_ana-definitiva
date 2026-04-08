@@ -7,7 +7,6 @@ from brain import process
 
 app = FastAPI()
 
-# 🔓 Permitir conexión (Mendix / web / celular)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -16,216 +15,74 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 📩 Modelo de datos
 class ChatRequest(BaseModel):
     user: str
     message: str
 
-
-# 🌐 INTERFAZ WEB (CHAT NEÓN)
-@app.get("/", response_class=HTMLResponse)
-def home():
+# 🌐 INTERFAZ EN /chat
+@app.get("/chat", response_class=HTMLResponse)
+def chat_ui():
     return """
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>A.N.A IA</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-body {
-    margin: 0;
-    font-family: Arial;
-    background: #020617;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-}
-
-header {
-    padding: 15px;
-    text-align: center;
-    color: #22d3ee;
-    font-weight: bold;
-    font-size: 20px;
-    box-shadow: 0 0 10px #22d3ee;
-}
-
-#chat {
-    flex: 1;
-    overflow-y: auto;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-}
-
-.msg {
-    padding: 10px;
-    margin: 5px;
-    border-radius: 12px;
-    max-width: 75%;
-    word-wrap: break-word;
-    animation: fadeIn 0.3s ease;
-}
-
-.user {
-    background: #22d3ee;
-    color: black;
-    align-self: flex-end;
-}
-
-.bot {
-    background: #0ea5e9;
-    align-self: flex-start;
-    box-shadow: 0 0 10px #22d3ee55;
-}
-
-.typing {
-    font-style: italic;
-    opacity: 0.7;
-}
-
-#inputArea {
-    display: flex;
-    padding: 10px;
-    border-top: 1px solid #22d3ee;
-}
-
-input {
-    flex: 1;
-    padding: 10px;
-    border-radius: 10px;
-    border: none;
-    outline: none;
-}
-
-button {
-    margin-left: 5px;
-    padding: 10px;
-    border-radius: 10px;
-    border: none;
-    background: #22d3ee;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-@keyframes fadeIn {
-    from {opacity: 0; transform: translateY(5px);}
-    to {opacity: 1;}
-}
-
-@media (max-width: 600px) {
-    .msg {
-        max-width: 90%;
-    }
-}
+body{margin:0;font-family:Arial;background:#020617;color:white;display:flex;flex-direction:column;height:100vh;}
+header{text-align:center;padding:10px;color:#22d3ee;box-shadow:0 0 10px #22d3ee;}
+#chat{flex:1;overflow:auto;padding:10px;display:flex;flex-direction:column;}
+.msg{padding:10px;margin:5px;border-radius:10px;max-width:80%;}
+.user{background:#22d3ee;color:black;align-self:flex-end;}
+.bot{background:#0ea5e9;align-self:flex-start;}
+#inputArea{display:flex;padding:10px;border-top:1px solid #22d3ee;}
+input{flex:1;padding:10px;border-radius:10px;border:none;}
+button{padding:10px;margin-left:5px;background:#22d3ee;border:none;border-radius:10px;}
 </style>
 </head>
 
 <body>
 
-<header>
-🤖 A.N.A IA
-<button onclick="limpiarChat()">🧹</button>
-</header>
+<header>🤖 A.N.A IA</header>
 
 <div id="chat"></div>
 
 <div id="inputArea">
-    <input id="msg" placeholder="Escribe tu mensaje..." />
-    <button onclick="enviar()">➤</button>
+<input id="msg" placeholder="Escribe..." />
+<button onclick="send()">➤</button>
 </div>
 
 <script>
 const chat = document.getElementById("chat");
 const input = document.getElementById("msg");
 
-/* Cargar historial */
-window.onload = () => {
-    let saved = localStorage.getItem("chat");
-    if (saved) {
-        chat.innerHTML = saved;
-        chat.scrollTop = chat.scrollHeight;
-    }
-};
-
-/* Guardar historial */
-function guardar() {
-    localStorage.setItem("chat", chat.innerHTML);
-}
-
-/* ENTER */
-input.addEventListener("keypress", function(e) {
-    if (e.key === "Enter") enviar();
+input.addEventListener("keypress", e=>{
+ if(e.key==="Enter") send();
 });
 
-/* Mensajes */
-function agregarMensaje(texto, tipo) {
-    let div = document.createElement("div");
-    div.className = "msg " + tipo;
-    div.innerText = texto;
-    chat.appendChild(div);
-    chat.scrollTop = chat.scrollHeight;
-    guardar();
+function add(text,type){
+ let d=document.createElement("div");
+ d.className="msg "+type;
+ d.innerText=text;
+ chat.appendChild(d);
+ chat.scrollTop=9999;
 }
 
-/* Typing */
-let typingDiv = null;
+async function send(){
+ let m=input.value;
+ if(!m) return;
 
-function mostrarTyping() {
-    typingDiv = document.createElement("div");
-    typingDiv.className = "msg bot typing";
-    typingDiv.innerText = "Escribiendo...";
-    chat.appendChild(typingDiv);
-    chat.scrollTop = chat.scrollHeight;
-}
+ add(m,"user");
+ input.value="";
 
-function quitarTyping() {
-    if (typingDiv) {
-        chat.removeChild(typingDiv);
-        typingDiv = null;
-    }
-}
+ let r=await fetch("/chat",{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({user:"web",message:m})
+ });
 
-/* Enviar */
-async function enviar() {
-    let mensaje = input.value.trim();
-    if (!mensaje) return;
+ let data=await r.json();
 
-    agregarMensaje(mensaje, "user");
-    input.value = "";
-
-    mostrarTyping();
-
-    try {
-        let res = await fetch("/chat", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                user: "web",
-                message: mensaje
-            })
-        });
-
-        let data = await res.json();
-
-        quitarTyping();
-        agregarMensaje(data.respuesta, "bot");
-
-    } catch (err) {
-        quitarTyping();
-        agregarMensaje("⚠️ Error con la IA", "bot");
-    }
-}
-
-/* Limpiar chat */
-function limpiarChat() {
-    chat.innerHTML = "";
-    localStorage.removeItem("chat");
+ add(data.respuesta,"bot");
 }
 </script>
 
@@ -233,27 +90,7 @@ function limpiarChat() {
 </html>
 """
 
-
-# 🧠 API CHAT
+# 🧠 API (Mendix)
 @app.post("/chat")
 def chat(req: ChatRequest):
-    try:
-        respuesta = process(req.user, req.message)
-
-        if not respuesta:
-            return {
-                "status": "ok",
-                "respuesta": "🤖 No pude procesar eso, intenta diferente."
-            }
-
-        return {
-            "status": "ok",
-            "respuesta": respuesta
-        }
-
-    except Exception as e:
-        print("❌ Error general:", e)
-        return {
-            "status": "error",
-            "respuesta": "⚠️ Error interno del servidor."
-        }
+    return {"status": "ok", "respuesta": process(req.user, req.message)}
