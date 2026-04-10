@@ -93,4 +93,10 @@ async function send(){
 # 🧠 API (Mendix)
 @app.post("/chat")
 def chat(req: ChatRequest):
-    return {"status": "ok", "respuesta": process(req.user, req.message)}
+    resultado = process(req.user, req.message)
+
+    return {
+        "status": "ok",
+        "respuesta": resultado["respuesta"],
+        "emocional": resultado["emocional"]
+    }
